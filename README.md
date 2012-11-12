@@ -23,8 +23,6 @@ Even if you are not directly calling the functions defined in the `to-be-continu
 
 ## Async-Aware Threading Macros
 
-```clojure
-
 The `-+->` and `-+->>` macros are asynchronous-aware equivalents of Clojure's `->` and `->>` macros, respectively. When any of the intermediate forms in the threading expression ends in `...`, it signals that the form is invoking asynchronous code and requires a callback. To Be Continued will replace the `...` with an automatically generated callback function that will continue with the threading expression where the asynchronous call left off.
 
 For example:
