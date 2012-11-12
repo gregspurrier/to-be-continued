@@ -8,5 +8,6 @@
   :hooks [leiningen.cljsbuild]
   :dependencies []
   :source-path "src/clj"
-  :cljsbuild {:builds [{:source-path "src/cljs"}]}
+  :cljsbuild {:builds [{:source-path "src/cljs"
+                        :jar true}]}
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.4.0"]]}})
