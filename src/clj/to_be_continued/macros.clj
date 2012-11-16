@@ -1,4 +1,11 @@
-(ns to-be-continued.macros)
+(ns to-be-continued.macros
+  "Asynchronous-aware equivalents of Clojure's ->, ->>, and let macros")
+
+;; NOTE: In order to support ClojureScript, the functions defined in
+;; this namespace may only used at the time of macro expansion. Any
+;; functions that must be available at run time--i.e., functions
+;; referenced in the expanded code--must be defined in the
+;; to-be-continued.fns namespace.
 
 (defn- promote-to-list
   [form]
@@ -25,6 +32,15 @@
   (= (last form) '...))
 
 (defmacro -+->
+  "An asynchronous-aware equivalent of clojure.core/->. Threads expr
+through the intermediate forms as their first argument and then
+invokes the callback with the final result. Always returns nil.
+
+If the intermediate form is asynchronous, indicated by its last
+argument being '...', the '...' is replaced with an automatically
+generated callback function that resumes processing of the thread once
+the result of the asynchronous computation is available."
+  {:arglists '([expr intermediate-forms* callback])}
   ([x form]
      (-> form
          promote-to-list
@@ -33,7 +49,7 @@
   ([x form & more]
      (let [form (promote-to-list form)]
        (if (requires-continuation? form)
-         ;; Build a continuation
+         ;; Expand ... into a continuation
          (-> form
              butlast
              (add-argument-first x)
@@ -42,6 +58,15 @@
          `(-+-> ~(add-argument-first form x) ~@more)))))
 
 (defmacro -+->>
+  "An asynchronous-aware equivalent of clojure.core/->>. Threads expr
+through the intermediate forms as their last non-callback argument and
+then invokes the callback with the final result. Always returns nil.
+
+If the intermediate form is asynchronous, indicated by its last
+argument being '...', the '...' is replaced with an automatically
+generated callback function that resumes processing of the thread once
+the result of the asynchronous computation is available."
+  {:arglists '([expr intermediate-forms* callback])}
   ([x form]
      (-> form
          promote-to-list
@@ -50,7 +75,7 @@
   ([x form & more]
      (let [form (promote-to-list form)]
        (if (requires-continuation? form)
-         ;; Build a continuation
+         ;; Expand ... into a continuation
          (-> form
              butlast
              (add-argument-last x)
@@ -68,6 +93,12 @@
       ~form)))
 
 (defmacro let-par
+  "An asynchronous-aware equivalent of clojure.core/let. If any of
+the bound expressions in bindings is an asynchronous call, indicated
+by its last argument being '...', the '...' is replaced with an
+automatically-generated callback that will receive its result. Once
+all asynchronous results have been realized, the body forms are
+executed in an environment having the bindings in place."
   [bindings & forms]
   (let [binding-pairs (partition 2 bindings)
         bound-vars (map first binding-pairs)
