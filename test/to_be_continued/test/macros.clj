@@ -1,6 +1,7 @@
 (ns to-be-continued.test.macros
   (:use to-be-continued.macros
-        midje.sweet))
+        midje.sweet)
+  (:require to-be-continued.fns))
 
 ;; Helper functions used verifying threading behavior
 (unfinished one-arg-fn)
@@ -26,7 +27,7 @@
               (two-arg-fn ..value2.. ..second-arg..) => ..final-value..
               (callback ..final-value..) => ..anything..))
 
-    (fact "replaces ... with a continuation of the thread"
+  (fact "replaces ... with a continuation of the thread"
     (-+-> ..value..
           (async-one-arg-fn ...)
           (async-two-arg-fn ..second-arg.. ...)
@@ -36,8 +37,8 @@
               (two-arg-fn ..value2.. ..second-arg..) => ..final-value..
               (callback ..final-value..) => ..anything..))
 
-    (fact "synchronous and asynchronous functions can be mixed in the thread"
-      (-+-> ..value..
+  (fact "synchronous and asynchronous functions can be mixed in the thread"
+    (-+-> ..value..
           (two-arg-fn ..some-arg..)
           (async-one-arg-fn ...)
           (async-two-arg-fn ..another-arg.. ...)
@@ -84,3 +85,21 @@
               (two-arg-fn ..another-arg.. ..value3..) => ..value4..
               (one-arg-fn ..value4..) => ..final-value..
               (callback ..final-value..) => ..anything..)))
+
+(facts "about let-par"
+  (fact "behaves like let for synchronous forms"
+    (let-par [a ..value.., b (identity ..another-value..)]
+             {:a a, :b b})
+    => {:a ..value.., :b ..another-value..})
+  (fact "replaces ... with a continuation and waits for result"
+    (let-par [a (async-one-arg-fn ..an-arg.. ...)
+              b (async-two-arg-fn ..arg1.. ..arg2.. ...)]
+             {:a a, :b b})
+    => {:a ..one-arg-result.., :b ..two-arg-result..}
+    (provided (one-arg-fn ..an-arg..) => ..one-arg-result..
+              (two-arg-fn ..arg1.. ..arg2..) => ..two-arg-result..))
+  (fact "allows synchronous and asynchronous bindings to be mixed"
+    (let-par [a ..value.., b (async-one-arg-fn ..arg.. ...)]
+             {:a a, :b b})
+    => {:a ..value.., :b ..result..}
+    (provided (one-arg-fn ..arg..) => ..result..)))

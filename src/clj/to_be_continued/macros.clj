@@ -60,11 +60,12 @@
 
 (defn- executable-bound-form
   [form result-sym index k-sym]
-  (if (requires-continuation? form)
+  (if (and (list? form) (requires-continuation? form))
     `(~@(butlast form) (to-be-continued.fns/make-result-setter ~result-sym
                                                                ~index
                                                                ~k-sym))
-    `((make-result-setter ~result-sym ~index ~k-sym) ~form)))
+    `((to-be-continued.fns/make-result-setter ~result-sym ~index ~k-sym)
+      ~form)))
 
 (defmacro let-par
   [bindings & forms]
