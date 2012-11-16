@@ -7,7 +7,7 @@
   :plugins [[lein-cljsbuild "0.2.9"]]
   :hooks [leiningen.cljsbuild]
   :dependencies []
-  :source-paths ["src/clj"]
+  :source-paths ["src/clj" "src/crossover"]
   :cljsbuild {:builds [{:source-path "src/cljs"
                         :jar true}]}
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.4.0"]

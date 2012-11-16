@@ -1,9 +1,8 @@
-(ns to-be-continued.test.macros
-  (:use to-be-continued.macros
-        midje.sweet)
-  (:require to-be-continued.fns))
+(ns to-be-continued.test.core
+  (:use to-be-continued.core
+        midje.sweet))
 
-;; Helper functions used verifying threading behavior
+;; Helper functions used in the verification of threading behavior
 (unfinished one-arg-fn)
 (unfinished two-arg-fn)
 (unfinished callback)
