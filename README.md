@@ -81,7 +81,7 @@ For example:
 Like any other asynchronous function that takes a callback as its last argument, `map-par` expressions may be included in `-+->` and `-+->>` threading expressions or used as `let-par` binding forms.
 
 ## Example Application
-Please see [tbc-node-example](https://github.com/gregspurrier/tbc-node-demo) for an example ClojureScript + Node.js application that uses To Be Continued to asynchronously query the GitHub API.
+Please see [tbc-node-example](https://github.com/gregspurrier/tbc-node-example) for an example ClojureScript + Node.js application that uses To Be Continued to asynchronously query the GitHub API.
 
 ## Roadmap
 - Error handling
