@@ -8,7 +8,10 @@
   :hooks [leiningen.cljsbuild]
   :dependencies []
   :source-paths ["src/clj" "src/crossover"]
-  :cljsbuild {:builds [{:source-path "src/cljs"
+  :cljsbuild {:crossovers [to-be-continued.fns
+                           to-be-continued.macros]
+              :crossover-jar true
+              :builds [{:source-path "src/cljs"
                         :jar true}]}
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.4.0"]
                                   [midje "1.4.0"]]}})
