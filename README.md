@@ -2,24 +2,30 @@
 
 To Be Continued is a library that simplifies asynchronous programming. It allows synchronous and asynchronous code to be blended together, handling the generation of the necessary callback functions automatically.
 
-During its early development, it is being packaged only for ClojureScript. Packaging for Clojure will soon be added.
-
 ## Installation
 
-Add the following dependency to your ClojureScript project's project.clj file:
+Add the following dependency to your project's project.clj file:
 
 ```clojure
 [to-be-continued "0.1.0-SNAPSHOT"]
 ```
 
-Then add the following clauses to the namespace declaration of the file(s) in which you want to use it:
+Then add the appropriate require statements to the namespaces in which you want to use To Be Continued. Even if you are not directly calling the functions defined in the `to-be-continued.fns` namespace, it still must be required for use by the macros.
 
+### Clojure
 ```clojure
-(:require [to-be-continued.fns :as tbc-fns])
-(:require-macros [to-be-continued.macros :as tbc])
+(:require [to-be-continued.macros :as tbc]
+          [to-be-continued.fns :as tbc-fns])
 ```
 
-Even if you are not directly calling the functions defined in the `to-be-continued.fns` namespace, it still must be required for use by the macros.
+For Clojure only, the `to-be-continued.core` namespace is provided as a convenience. It includes both the macros and the functions.
+
+### ClojureScript
+
+```clojure
+(:require-macros [to-be-continued.macros :as tbc])
+(:require [to-be-continued.fns :as tbc-fns])
+```
 
 ## Async-Aware Threading Macros
 
@@ -74,8 +80,10 @@ For example:
 
 Like any other asynchronous function that takes a callback as its last argument, `map-par` expressions may be included in `-+->` and `-+->>` threading expressions or used as `let-par` binding forms.
 
+## Example Application
+Please see [tbc-node-example](https://github.com/gregspurrier/tbc-node-demo) for an example ClojureScript + Node.js application that uses To Be Continued to asynchronously query the GitHub API.
+
 ## Roadmap
-- Package for Clojure
 - Error handling
 - Additional means of parallel execution 
 
