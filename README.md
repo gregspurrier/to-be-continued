@@ -7,7 +7,7 @@ To Be Continued is a library that simplifies asynchronous programming. It allows
 Add the following dependency to your project's project.clj file:
 
 ```clojure
-[to-be-continued "0.1.0-SNAPSHOT"]
+[to-be-continued "0.1.0"]
 ```
 
 Then add the appropriate require statements to the namespaces in which you want to use To Be Continued. Even if you are not directly calling the functions defined in the `to-be-continued.fns` namespace, it still must be required for use by the macros.
