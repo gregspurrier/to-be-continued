@@ -50,12 +50,16 @@ the result of the asynchronous computation is available."
      (let [form (promote-to-list form)]
        (if (requires-continuation? form)
          ;; Expand ... into a continuation
-         (-> form
-             butlast
-             (add-argument-first x)
-             (add-continuation `(fn [result#] (-+-> result# ~@more))))
-         ;; Same as normal threading
-         `(-+-> ~(add-argument-first form x) ~@more)))))
+         `(if (to-be-continued.fns/error? ~x)
+            (-+-> ~x ~@more)
+            ~(-> form
+                 butlast
+                 (add-argument-first x)
+                 (add-continuation `(fn [result#] (-+-> result# ~@more)))))
+         ;; Synchronous case
+         `(if (to-be-continued.fns/error? ~x) 
+            (-+-> ~x ~@more)
+            (-+-> ~(add-argument-first form x) ~@more))))))
 
 (defmacro -+->>
   "An asynchronous-aware equivalent of clojure.core/->>. Threads expr
@@ -76,12 +80,16 @@ the result of the asynchronous computation is available."
      (let [form (promote-to-list form)]
        (if (requires-continuation? form)
          ;; Expand ... into a continuation
-         (-> form
-             butlast
-             (add-argument-last x)
-             (add-continuation `(fn [result#] (-+->> result# ~@more))))
-         ;; Same as normal threading
-         `(-+->> ~(add-argument-last form x) ~@more)))))
+         `(if (to-be-continued.fns/error? ~x)
+            (-+->> ~x ~@more)
+            ~(-> form
+                 butlast
+                 (add-argument-last x)
+                 (add-continuation `(fn [result#] (-+->> result# ~@more)))))
+         ;; Synchronous case
+         `(if (to-be-continued.fns/error? ~x) 
+            (-+->> ~x ~@more)
+            (-+->> ~(add-argument-last form x) ~@more))))))
 
 (defn- executable-bound-form
   [form result-sym index k-sym]

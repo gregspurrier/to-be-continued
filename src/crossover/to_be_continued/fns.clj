@@ -32,3 +32,12 @@
     ;; Fire off the async calls
     (doseq [[pf idx] pairs]
       (pf (make-result-setter result idx k)))))
+
+(defn error
+  "Creates an error object having the provided tag"
+  [tag]
+  (with-meta {:type tag} {:error true}))
+
+(defn error?
+  [value]
+  (boolean (:error (meta value))))

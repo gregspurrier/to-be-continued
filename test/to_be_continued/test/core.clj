@@ -122,3 +122,101 @@
     => nil
     (provided (one-arg-fn ..arg..) => ..result..
               (callback {:a ..value.., :b ..result..}) => ..anything..)))
+
+(facts "about error handling in -+->"
+  (let [an-error (error :boom)]
+    (fact "errors short-circuit remaining intermediate forms"
+      (-+-> ..value..
+            one-arg-fn
+            (two-arg-fn ..other-arg..)
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..)
+
+      (-+-> ..value..
+            one-arg-fn
+            (async-two-arg-fn ..other-arg.. ...)
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..)
+
+      (-+-> ..value..
+            (async-one-arg-fn ...)
+            (two-arg-fn ..other-arg..)
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..)
+
+      (-+-> ..value..
+            (async-one-arg-fn ...)
+            (async-two-arg-fn ..other-arg.. ...)
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..))
+    (fact "error in final intermediate form still invokes callback"
+      (-+-> ..value..
+            one-arg-fn
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..)
+
+      (-+-> ..value..
+            (async-one-arg-fn ...)
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..))))
+
+(facts "about error handling in -+->>"
+  (let [an-error (error :boom)]
+    (fact "errors short-circuit remaining intermediate forms"
+      (-+->> ..value..
+            one-arg-fn
+            (two-arg-fn ..other-arg..)
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..)
+
+      (-+->> ..value..
+            one-arg-fn
+            (async-two-arg-fn ..other-arg.. ...)
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..)
+
+      (-+->> ..value..
+            (async-one-arg-fn ...)
+            (two-arg-fn ..other-arg..)
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..)
+
+      (-+->> ..value..
+            (async-one-arg-fn ...)
+            (async-two-arg-fn ..other-arg.. ...)
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..))
+    (fact "error in final intermediate form still invokes callback"
+      (-+->> ..value..
+            one-arg-fn
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..)
+
+      (-+->> ..value..
+            (async-one-arg-fn ...)
+            callback)
+      => nil
+      (provided (one-arg-fn ..value..) => an-error
+                (callback an-error) => ..anything..))))

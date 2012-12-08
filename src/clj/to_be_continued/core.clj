@@ -7,6 +7,7 @@
 ;; for ClojureScript into a single namespace for use in Clojure.
 
 (def map-par to-be-continued.fns/map-par)
+(def error to-be-continued.fns/error)
 
 (defmacro -+->
   [expr & forms]
