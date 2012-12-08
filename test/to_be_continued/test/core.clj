@@ -85,6 +85,16 @@
               (one-arg-fn ..value4..) => ..final-value..
               (callback ..final-value..) => ..anything..)))
 
+(fact "threading macros can be nested"
+  (-+-> ..value..
+        (-+-> (async-one-arg-fn ...) ...)
+        (-+->> (async-one-arg-fn ...) ...)
+        callback)
+  => nil
+  (provided (one-arg-fn ..value..) => ..value2..
+            (one-arg-fn ..value2..) => ..final-value..
+            (callback ..final-value..) => ..anything..))
+
 (facts "about let-par"
   (fact "behaves like let for synchronous forms"
     (let-par [a ..value.., b (identity ..another-value..)]
@@ -100,6 +110,12 @@
               (two-arg-fn ..arg1.. ..arg2..) => ..two-arg-result..
               (callback {:a ..one-arg-result.., :b ..two-arg-result..}) 
               => ..anything..))
+  (fact "supports ... at the end of a thread expression"
+    (let-par [a (-+-> ..an-arg.. (async-one-arg-fn ...) ...)]
+             (callback a))
+    => nil
+    (provided (one-arg-fn ..an-arg..) => ..one-arg-result..
+              (callback ..one-arg-result..) => ..anything..))
   (fact "allows synchronous and asynchronous bindings to be mixed"
     (let-par [a ..value.., b (async-one-arg-fn ..arg.. ...)]
              (callback {:a a, :b b}))
