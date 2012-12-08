@@ -111,4 +111,5 @@ executed in an environment having the bindings in place."
                           (apply (fn [~@bound-vars] ~@forms) result-vec#))]
        ~@(map #(executable-bound-form %1 result-sym %2 inner-k-sym)
               bound-forms
-              (iterate inc 0)))))
+              (iterate inc 0))
+       nil)))
