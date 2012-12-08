@@ -14,4 +14,6 @@
               :builds [{:source-path "src/cljs"
                         :jar true}]}
   :profiles {:dev {:dependencies [[org.clojure/clojure "1.4.0"]
+                                  [org.clojure/tools.nrepl "0.2.0-RC1"]
+                                  [clojure-complete "0.2.2"]
                                   [midje "1.4.0"]]}})
