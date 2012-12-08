@@ -1,4 +1,4 @@
-(defproject to-be-continued "0.1.0"
+(defproject to-be-continued "0.2.0-SNAPSHOT"
   :description "Asynchronous programming, simplified."
   :url "https://github.com/gregspurrier/to-be-continued"
   :license {:name "MIT"
