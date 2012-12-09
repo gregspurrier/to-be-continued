@@ -31,6 +31,32 @@
   [form]
   (= (last form) '...))
 
+(defn- intermediate-form
+  "Construct the form for an intermediate step in the thread"
+  [x form remaining-forms thread-op arg-insert-fn]
+  (let [form (promote-to-list form)]
+    (if (requires-continuation? form)
+      ;; Expand ... into a continuation
+      `(if (to-be-continued.fns/error? ~x)
+         (~thread-op ~x ~@remaining-forms)
+         ~(-> form
+              butlast
+              (arg-insert-fn x)
+              (add-continuation `(fn [result#] 
+                                   (~thread-op result# ~@remaining-forms)))))
+      ;; Synchronous case
+      `(if (to-be-continued.fns/error? ~x) 
+         (~thread-op ~x ~@remaining-forms)
+         (~thread-op ~(arg-insert-fn form x) ~@remaining-forms)))))
+
+(defn- final-thread-form
+  "Construct the form that executes the final step in the thread"
+  [x form arg-insert-fn]
+  (-> form
+      promote-to-list
+      (arg-insert-fn x)
+      (execute-ignoring-result)))
+
 (defmacro -+->
   "An asynchronous-aware equivalent of clojure.core/->. Threads expr
 through the intermediate forms as their first argument and then
@@ -42,24 +68,9 @@ generated callback function that resumes processing of the thread once
 the result of the asynchronous computation is available."
   {:arglists '([expr intermediate-forms* callback])}
   ([x form]
-     (-> form
-         promote-to-list
-         (add-argument-first x)
-         (execute-ignoring-result)))
+     (final-thread-form x form add-argument-first))
   ([x form & more]
-     (let [form (promote-to-list form)]
-       (if (requires-continuation? form)
-         ;; Expand ... into a continuation
-         `(if (to-be-continued.fns/error? ~x)
-            (-+-> ~x ~@more)
-            ~(-> form
-                 butlast
-                 (add-argument-first x)
-                 (add-continuation `(fn [result#] (-+-> result# ~@more)))))
-         ;; Synchronous case
-         `(if (to-be-continued.fns/error? ~x) 
-            (-+-> ~x ~@more)
-            (-+-> ~(add-argument-first form x) ~@more))))))
+     (intermediate-form x form more '-+-> add-argument-first)))
 
 (defmacro -+->>
   "An asynchronous-aware equivalent of clojure.core/->>. Threads expr
@@ -72,24 +83,9 @@ generated callback function that resumes processing of the thread once
 the result of the asynchronous computation is available."
   {:arglists '([expr intermediate-forms* callback])}
   ([x form]
-     (-> form
-         promote-to-list
-         (add-argument-last x)
-         (execute-ignoring-result)))
+     (final-thread-form x form add-argument-last))
   ([x form & more]
-     (let [form (promote-to-list form)]
-       (if (requires-continuation? form)
-         ;; Expand ... into a continuation
-         `(if (to-be-continued.fns/error? ~x)
-            (-+->> ~x ~@more)
-            ~(-> form
-                 butlast
-                 (add-argument-last x)
-                 (add-continuation `(fn [result#] (-+->> result# ~@more)))))
-         ;; Synchronous case
-         `(if (to-be-continued.fns/error? ~x) 
-            (-+->> ~x ~@more)
-            (-+->> ~(add-argument-last form x) ~@more))))))
+     (intermediate-form x form more '-+->> add-argument-last)))
 
 (defn- executable-bound-form
   [form result-sym index k-sym]
